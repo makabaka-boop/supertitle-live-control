@@ -1,0 +1,25 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+dist-ssr/
+
+# 测试产物
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+coverage/
+
+# 日志与环境
+*.log
+.env
+.env.*
+local.properties
+
+# 编辑器/系统
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store

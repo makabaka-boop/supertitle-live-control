@@ -1,0 +1,33 @@
+# 语法版本由 compose 自动适配；WEB_PORT 决定宿主机映射端口。
+# 用法：
+#   WEB_PORT=8080 docker compose up --build web
+#   docker compose run --rm verify     # 一次性校验：构建 + Vitest + Playwright
+services:
+  web:
+    build:
+      context: .
+      target: web
+    image: opera-stage:web
+    ports:
+      # 宿主端口由环境变量 WEB_PORT 覆盖（默认 8080），容器内固定 80。
+      - "${WEB_PORT:-8080}:80"
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+  verify:
+    # 一次性校验服务：构建、Vitest 持久状态校验、Playwright 多页争用验收。
+    # 退出码非 0 即验收失败；容器不长期驻留（docker compose run --rm verify）。
+    profiles:
+      - verify
+    build:
+      context: .
+      target: verify
+    image: opera-stage:verify
+    command: ["npm", "run", "verify"]
+    environment:
+      # Playwright 官方镜像内浏览器为 root 安装；容器以非 root 运行时指定缓存目录
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+    security_opt:
+      - no-new-privileges:true
